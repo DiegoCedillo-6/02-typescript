@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 02: Bases de TypeScript & Puente Pedagógico con Java | UETS</title>
+  
+  <!-- Google Fonts: Archivo Black, Space Grotesk, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       VIEWPORT BASE & STAGE SCALING (frontend-slides 1920x1080)
+       ========================================================================== */
+    :root {
+      --canvas-w: 1920px;
+      --canvas-h: 1080px;
+
+      /* Creative Mode Color Palette */
+      --cream: #EFE9D9;
+      --cream-2: #E4DCC4;
+      --ink: #0F0F0F;
+      --ink-2: #2A2A2A;
+      --ink-muted: #555555;
+      
+      --green: #1F8A4C;
+      --green-dark: #136636;
+      --green-light: #d4f0df;
+
+      --pink: #F06CA8;
+      --pink-dark: #D14E8B;
+      --pink-light: #fce4ef;
+
+      --orange: #E85A1F;
+      --orange-light: #fde8df;
+
+      --yellow: #F5C518;
+      --yellow-light: #fdf5d6;
+
+      --blue: #2B6CB0;
+      --blue-light: #e6f0fa;
+
+      --border-thick: 4px solid var(--ink);
+      --border-thin: 2px solid var(--ink);
+
+      --shadow-ink: 6px 6px 0px var(--ink);
+      --shadow-ink-lg: 10px 10px 0px var(--ink);
+      --shadow-green: 8px 8px 0px var(--green);
+      --shadow-pink: 8px 8px 0px var(--pink);
+      --shadow-orange: 8px 8px 0px var(--orange);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #0d0d0d;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--ink);
+      user-select: none;
+    }
+
+    #stage-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: var(--canvas-w);
+      height: var(--canvas-h);
+      background-color: var(--cream);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+      overflow: hidden;
+      transform-origin: center center;
+    }
+
+    /* SLIDE STACK MANAGEMENT */
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1920px;
+      height: 1080px;
+      padding: 90px 96px 75px 96px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      transform: scale(0.985);
+      background-color: var(--cream);
+      z-index: 1;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: scale(1);
+      z-index: 2;
+    }
+
+    /* CHROME & TOPBAR */
+    .topbar {
+      position: absolute;
+      top: 35px;
+      left: 96px;
+      right: 96px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      z-index: 10;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .pill {
+      background: var(--yellow);
+      border: var(--border-thin);
+      padding: 4px 14px;
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .pill-green { background: var(--green); color: #fff; }
+    .pill-pink { background: var(--pink); color: #fff; }
+    .pill-orange { background: var(--orange); color: #fff; }
+    .pill-blue { background: var(--blue); color: #fff; }
+
+    .bottombar {
+      position: absolute;
+      bottom: 30px;
+      left: 96px;
+      right: 96px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      color: var(--ink-muted);
+      border-top: 2px solid rgba(15,15,15,0.15);
+      padding-top: 12px;
+      z-index: 10;
+    }
+
+    /* PROGRESS BAR */
+    #progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 8px;
+      background: var(--orange);
+      width: 0%;
+      transition: width 0.3s ease;
+      z-index: 20;
+    }
+
+    /* TYPOGRAPHY */
+    .font-display {
+      font-family: 'Archivo Black', sans-serif;
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+    }
+
+    .title-hero {
+      font-size: 100px;
+      color: var(--ink);
+      margin-bottom: 20px;
+    }
+
+    .title-xl {
+      font-size: 60px;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .title-lg {
+      font-size: 46px;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+
+    .subtitle-hero {
+      font-size: 30px;
+      font-weight: 500;
+      color: var(--ink-2);
+      line-height: 1.35;
+      max-width: 1400px;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* NEO-BRUTALIST CARDS & COMPONENTS */
+    .card {
+      background: #ffffff;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-ink);
+      padding: 28px;
+      position: relative;
+    }
+
+    .card-cream { background: var(--cream-2); }
+    .card-yellow { background: var(--yellow-light); }
+    .card-green { background: var(--green-light); border-color: var(--ink); }
+    .card-pink { background: var(--pink-light); }
+    .card-orange { background: var(--orange-light); }
+    .card-blue { background: var(--blue-light); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      height: 100%;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* CODE BOXES */
+    .code-box {
+      background: #141820;
+      color: #e6edf3;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-ink);
+      padding: 20px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      line-height: 1.45;
+      overflow: hidden;
+      white-space: pre;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #2d333b;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .tag-java { color: #f0883e; }
+    .tag-ts { color: #58a6ff; }
+
+    .kw { color: #ff7b72; font-weight: 700; }
+    .type { color: #79c0ff; }
+    .str { color: #a5d6ff; }
+    .fn { color: #d2a8ff; }
+    .cm { color: #8b949e; font-style: italic; }
+    .num { color: #79c0ff; }
+    .prop { color: #ffa657; }
+
+    /* QUIZ WIDGET */
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .quiz-question {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.25;
+      padding: 16px 20px;
+      background: #ffffff;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-ink);
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .quiz-btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      text-align: left;
+      padding: 20px 24px;
+      background: #ffffff;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-ink);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .quiz-btn:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: var(--shadow-ink-lg);
+      background: var(--yellow-light);
+    }
+
+    .quiz-btn.correct {
+      background: #bbf7d0 !important;
+      border-color: var(--green-dark) !important;
+      box-shadow: 6px 6px 0 var(--green-dark) !important;
+      color: #064e3b !important;
+    }
+
+    .quiz-btn.incorrect {
+      background: #fecaca !important;
+      border-color: #991b1b !important;
+      box-shadow: 6px 6px 0 #991b1b !important;
+      color: #7f1d1d !important;
+    }
+
+    .quiz-feedback {
+      margin-top: 12px;
+      padding: 16px 20px;
+      border: var(--border-thick);
+      font-size: 20px;
+      font-weight: 600;
+      display: none;
+    }
+
+    /* STEP CIRCLES */
+    .step-circle {
+      width: 44px;
+      height: 44px;
+      background: var(--ink);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 20px;
+      margin-right: 12px;
+      border-radius: 50%;
+    }
+
+    /* CONTROLS OVERLAY */
+    #controls-hint {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(15,15,15,0.85);
+      color: #ffffff;
+      padding: 8px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      border-radius: 4px;
+      z-index: 100;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="controls-hint">⌨ [←] [→] [Espacio] Diapositivas | [F] Pantalla Completa</div>
+
+  <div id="stage-container">
+    <div id="progress-bar"></div>
+
+    <!-- ======================================================================
+         SLIDE 01: HERO COVER
+         ====================================================================== -->
+    <section class="slide active" data-slide="1">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill">UETS 2026–2027</span>
+          <span>PROGRAMACIÓN MÓVIL · 3° BGU</span>
+        </div>
+        <div>UT1 · ACTIVIDAD 2</div>
+      </div>
+
+      <div style="margin-top: 60px;">
+        <div style="display: flex; gap: 14px; margin-bottom: 20px;">
+          <span class="pill pill-green">REACT NATIVE & EXPO</span>
+          <span class="pill pill-orange">PUENTE PEDAGÓGICO JAVA ➔ TS</span>
+          <span class="pill pill-pink">EVALUACIÓN DUAL MIT 50/50</span>
+        </div>
+        <h1 class="font-display title-hero">BASES DE<br><span style="color: var(--green); text-shadow: 4px 4px 0 var(--ink);">TYPESCRIPT</span></h1>
+        <p class="subtitle-hero">
+          Construyendo bases sólidas de tipado estático, interfaces rigurosas y arquitectura limpia para aplicaciones móviles de escala profesional.
+        </p>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+        <div class="card card-yellow" style="padding: 14px 20px; display: inline-flex; gap: 20px;">
+          <div><b>Docente:</b> Ing. Milton Velásquez</div>
+          <div><b>Semana:</b> 02 (6 Períodos)</div>
+          <div><b>Ecosistema:</b> TypeScript 5.x / tsx</div>
+        </div>
+        <div class="mono" style="font-size: 20px; font-weight: 700;">[ PRESIONA ESPACIO PARA AVANZAR ] ➔</div>
+      </div>
+
+      <div class="bottombar">
+        <span>UNIDAD EDUCATIVA TÉCNICO SALESIANO</span>
+        <span class="slide-num">SLIDE 01 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 02: EL PROBLEMA DEL RUNTIME (¿POR QUÉ TS?)
+         ====================================================================== -->
+    <section class="slide" data-slide="2">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-orange">ANTICIPACIÓN</span>
+          <span>EL PROBLEMA DEL RUNTIME</span>
+        </div>
+        <div>¿POR QUÉ TYPESCRIPT EN MÓVIL?</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">EL COSTO DE NO TIPAR EN PRODUCCIÓN</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 20px;">
+          En JavaScript vanilla, los errores tipográficos o de estructuras explotan en el teléfono del usuario.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card-pink">
+          <div style="font-size: 22px; font-weight: 700; color: #991b1b; margin-bottom: 10px;">🚨 JavaScript Vanilla (Sin Tipos)</div>
+          <div class="code-box" style="font-size: 17px;">
+<span class="kw">function</span> <span class="fn">procesarPago</span>(usuario, monto) {
+  <span class="cm">// Si usuario.perfil viene null/undefined...</span>
+  <span class="kw">return</span> usuario.<span class="prop">perfil</span>.<span class="fn">descontarSaldo</span>(monto);
+}
+
+<span class="cm">// 💥 En tiempo de ejecución (App Crash en Android/iOS):</span>
+<span class="cm">// Uncaught TypeError: Cannot read properties of undefined</span>
+          </div>
+          <p style="margin-top: 12px; font-size: 19px; font-weight: 600;">
+            El error se descubre después de publicar el APK en la tienda.
+          </p>
+        </div>
+
+        <div class="card card-green">
+          <div style="font-size: 22px; font-weight: 700; color: var(--green-dark); margin-bottom: 10px;">🛡️ TypeScript (Seguridad Estática)</div>
+          <div class="code-box" style="font-size: 17px;">
+<span class="kw">interface</span> <span class="type">Usuario</span> {
+  <span class="prop">perfil</span>?: { <span class="fn">descontarSaldo</span>: (m: <span class="type">number</span>) => <span class="type">boolean</span> };
+}
+
+<span class="kw">function</span> <span class="fn">procesarPago</span>(u: <span class="type">Usuario</span>, m: <span class="type">number</span>) {
+  <span class="cm">// 🛑 TypeScript bloquea la compilación antes de guardar:</span>
+  <span class="kw">return</span> u.<span class="prop">perfil</span>?.<span class="fn">descontarSaldo</span>(m) ?? <span class="kw">false</span>;
+}
+          </div>
+          <p style="margin-top: 12px; font-size: 19px; font-weight: 600;">
+            0 errores en tiempo de ejecución. Autocompletado inteligente inmediato.
+          </p>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>PUENTE PEDAGÓGICO: SEGURIDAD DE COMPILACIÓN</span>
+        <span class="slide-num">SLIDE 02 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 03: EL CICLO DE VIDA (TYPE ERASURE)
+         ====================================================================== -->
+    <section class="slide" data-slide="3">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-green">MODELO MENTAL</span>
+          <span>EL CICLO DE VIDA DEL CÓDIGO</span>
+        </div>
+        <div>TRANSCOMPILACIÓN & TYPE ERASURE</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">¿QUÉ PASA CON LOS TIPOS AL EJECUTAR?</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 20px;">
+          TypeScript es un <b>guardián en tiempo de desarrollo</b>. En tiempo de ejecución no existe sobrecarga de memoria.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card card-yellow" style="text-align: center;">
+          <div class="mono" style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">01. ESCRIBIR</div>
+          <div class="pill pill-orange" style="margin-bottom: 14px;">TypeScript (.ts / .tsx)</div>
+          <p style="font-size: 19px; text-align: justify;">
+            Escribes código con interfaces y tipos estrictos. VS Code analiza cada símbolo en tiempo real.
+          </p>
+        </div>
+
+        <div class="card card-pink" style="text-align: center;">
+          <div class="mono" style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">02. COMPILAR</div>
+          <div class="pill pill-pink" style="margin-bottom: 14px;">Transpiler (tsc / Metro)</div>
+          <p style="font-size: 19px; text-align: justify;">
+            <b>Type Erasure:</b> El compilador elimina todos los tipos e interfaces. Genera JavaScript ultra-optimizado.
+          </p>
+        </div>
+
+        <div class="card card-green" style="text-align: center;">
+          <div class="mono" style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">03. EJECUTAR</div>
+          <div class="pill pill-green" style="margin-bottom: 14px;">Hermes Engine / V8</div>
+          <p style="font-size: 19px; text-align: justify;">
+            El teléfono móvil ejecuta el bundle JS a máxima velocidad nativa sin validaciones lentas.
+          </p>
+        </div>
+      </div>
+
+      <div class="card card-cream" style="margin-top: 20px; padding: 16px 20px;">
+        <span class="mono" style="font-weight: 700; color: var(--orange);">💡 ANALOGÍA CON JAVA:</span>
+        <span style="font-size: 19px; margin-left: 10px;">
+          En Java compilas `.java ➔ .class (Bytecode JVM)`. En TypeScript compilas `.ts ➔ .js (JavaScript estándar)`.
+        </span>
+      </div>
+
+      <div class="bottombar">
+        <span>ARQUITECTURA DE DESARROLLO MÓVIL</span>
+        <span class="slide-num">SLIDE 03 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 04: PUENTE PRIMITIVOS (JAVA VS TYPESCRIPT)
+         ====================================================================== -->
+    <section class="slide" data-slide="4">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-orange">SINTAXIS 1</span>
+          <span>TIPOS PRIMITIVOS</span>
+        </div>
+        <div>JAVA VS TYPESCRIPT</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">DE LOS TIPOS DE JAVA A TYPESCRIPT</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 16px;">
+          En TypeScript todo número es <code>number</code> (64-bit). El tipo va a la derecha con dos puntos (<code>:</code>).
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="code-header">
+            <span class="tag-java">☕ JAVA (Tipado a la izquierda)</span>
+            <span>Tipado Nominal</span>
+          </div>
+          <div class="code-box" style="font-size: 18px;">
+<span class="cm">// Primitivos en Java</span>
+<span class="type">int</span> edad = <span class="num">17</span>;
+<span class="type">double</span> promedio = <span class="num">9.85</span>;
+<span class="type">String</span> nombre = <span class="str">"Carlos"</span>;
+<span class="type">boolean</span> matriculado = <span class="kw">true</span>;
+
+<span class="cm">// Arrays</span>
+<span class="type">String</span>[] notas = {<span class="str">"A"</span>, <span class="str">"B"</span>};
+          </div>
+        </div>
+
+        <div class="card card-green">
+          <div class="code-header">
+            <span class="tag-ts">⚡ TYPESCRIPT (Tipado a la derecha :)</span>
+            <span>Inferencia + Anotación</span>
+          </div>
+          <div class="code-box" style="font-size: 18px;">
+<span class="cm">// Primitivos en TypeScript</span>
+<span class="kw">const</span> edad: <span class="type">number</span> = <span class="num">17</span>;
+<span class="kw">const</span> promedio: <span class="type">number</span> = <span class="num">9.85</span>;
+<span class="kw">const</span> nombre: <span class="type">string</span> = <span class="str">"Carlos"</span>;
+<span class="kw">const</span> matriculado: <span class="type">boolean</span> = <span class="kw">true</span>;
+
+<span class="cm">// Arrays</span>
+<span class="kw">const</span> notas: <span class="type">string</span>[] = [<span class="str">"A"</span>, <span class="str">"B"</span>];
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-yellow" style="margin-top: 16px; padding: 12px 18px;">
+        <b>Regla de Oro:</b> Usa <code>const</code> por defecto y <code>let</code> solo si el valor cambiará. ¡Nunca uses <code>var</code>!
+      </div>
+
+      <div class="bottombar">
+        <span>FUNDAMENTOS DE TIPADO</span>
+        <span class="slide-num">SLIDE 04 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 05: PUENTE POO (POJO VS INTERFACES)
+         ====================================================================== -->
+    <section class="slide" data-slide="5">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-pink">SINTAXIS 2</span>
+          <span>MODELADO DE DATOS</span>
+        </div>
+        <div>JAVA POJO VS TYPESCRIPT INTERFACE</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">MODELADO DE ENTIDADES PARA APPS</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 16px;">
+          En React Native no escribimos clases con 80 líneas de Getters/Setters. Usamos <b>Interfaces</b> limpias.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="code-header">
+            <span class="tag-java">☕ JAVA: Clase DTO con Boilerplate (30+ líneas)</span>
+          </div>
+          <div class="code-box" style="font-size: 15px;">
+<span class="kw">public class</span> <span class="type">Estudiante</span> {
+    <span class="kw">private</span> <span class="type">String</span> id;
+    <span class="kw">private</span> <span class="type">String</span> nombre;
+    <span class="kw">public</span> <span class="fn">Estudiante</span>(<span class="type">String</span> id, <span class="type">String</span> n) {
+        <span class="kw">this</span>.<span class="prop">id</span> = id; <span class="kw">this</span>.<span class="prop">nombre</span> = n;
+    }
+    <span class="kw">public</span> <span class="type">String</span> <span class="fn">getNombre</span>() { <span class="kw">return</span> nombre; }
+}
+          </div>
+        </div>
+
+        <div class="card card-green">
+          <div class="code-header">
+            <span class="tag-ts">⚡ TYPESCRIPT: Interface Concisa (6 líneas)</span>
+          </div>
+          <div class="code-box" style="font-size: 15px;">
+<span class="kw">export interface</span> <span class="type">Estudiante</span> {
+  <span class="kw">readonly</span> <span class="prop">id</span>: <span class="type">string</span>;          <span class="cm">// Inmutable</span>
+  <span class="prop">nombre</span>: <span class="type">string</span>;
+  <span class="prop">avatarUrl</span>?: <span class="type">string</span>;           <span class="cm">// Opcional (?)</span>
+}
+
+<span class="kw">const</span> alumno: <span class="type">Estudiante</span> = {
+  <span class="prop">id</span>: <span class="str">"EST-01"</span>, <span class="prop">nombre</span>: <span class="str">"Mateo"</span>
+};
+          </div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>MODELADO LIMPIO EN TYPESCRIPT</span>
+        <span class="slide-num">SLIDE 05 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 06: DUCK TYPING (TIPADO ESTRUCTURAL)
+         ====================================================================== -->
+    <section class="slide" data-slide="6">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-orange">CONCEPTO MAESTRO</span>
+          <span>TIPADO ESTRUCTURAL</span>
+        </div>
+        <div>NOMINAL (JAVA) VS ESTRUCTURAL (TS)</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">"DUCK TYPING": LA FORMA ES LO QUE IMPORTA</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 18px;">
+          En TS, dos objetos son compatibles si cumplen con los campos requeridos de la interface.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card-yellow">
+          <h3 class="font-display" style="font-size: 26px; margin-bottom: 10px;">☕ Java: Tipado Nominal</h3>
+          <p style="font-size: 19px; line-height: 1.4;">
+            Dos objetos solo son del mismo tipo si fueron declarados explícitamente con la misma clase.
+          </p>
+          <div class="code-box" style="margin-top: 14px; font-size: 15px;">
+<span class="kw">class</span> <span class="type">Punto2D</span> { <span class="type">int</span> x, y; }
+<span class="kw">class</span> <span class="type">Coordenada</span> { <span class="type">int</span> x, y; }
+
+<span class="type">Punto2D</span> p = <span class="kw">new</span> <span class="type">Coordenada</span>(); 
+<span class="cm">// ❌ ERROR DE COMPILACIÓN EN JAVA</span>
+          </div>
+        </div>
+
+        <div class="card card-green">
+          <h3 class="font-display" style="font-size: 26px; margin-bottom: 10px;">⚡ TS: Tipado Estructural</h3>
+          <p style="font-size: 19px; line-height: 1.4;">
+            "Si camina como pato y suena como pato, TypeScript lo trata como pato".
+          </p>
+          <div class="code-box" style="margin-top: 14px; font-size: 15px;">
+<span class="kw">interface</span> <span class="type">Punto</span> { <span class="prop">x</span>: <span class="type">number</span>; <span class="prop">y</span>: <span class="type">number</span>; }
+
+<span class="kw">const</span> gps = { <span class="prop">x</span>: <span class="num">10</span>, <span class="prop">y</span>: <span class="num">20</span>, <span class="prop">ciudad</span>: <span class="str">"Cuenca"</span> };
+
+<span class="kw">function</span> <span class="fn">dibujar</span>(p: <span class="type">Punto</span>) { ... }
+<span class="fn">dibujar</span>(gps); <span class="cm">// ✅ VÁLIDO (cumple con x e y)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>MODELO CONCEPTUAL DE TIPADO</span>
+        <span class="slide-num">SLIDE 06 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 07: UNIONES Y ESTADOS DE UI
+         ====================================================================== -->
+    <section class="slide" data-slide="7">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-green">SUPERPODER DE TS</span>
+          <span>UNION TYPES & NARROWING</span>
+        </div>
+        <div>MODELANDO ESTADOS DE PANTALLA</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">UNION TYPES & DISCRIMINATED UNIONS</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 16px;">
+          En React Native modelamos los estados de las pantallas (`LOADING`, `SUCCESS`, `ERROR`) de forma exacta.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="code-header">
+            <span class="tag-ts">🎯 Literal Types & Union Types</span>
+          </div>
+          <div class="code-box" style="font-size: 16px;">
+<span class="kw">export type</span> <span class="type">EstadoPeticion</span> = 
+  | <span class="str">"inactivo"</span> 
+  | <span class="str">"cargando"</span> 
+  | <span class="str">"exito"</span> 
+  | <span class="str">"error"</span>;
+
+<span class="kw">let</span> estado: <span class="type">EstadoPeticion</span> = <span class="str">"cargando"</span>;
+estado = <span class="str">"fallo"</span>; <span class="cm">// ❌ Error: "fallo" no existe</span>
+          </div>
+        </div>
+
+        <div class="card card-yellow">
+          <div class="code-header">
+            <span class="tag-ts">🔍 Discriminated Unions (Estado Completo)</span>
+          </div>
+          <div class="code-box" style="font-size: 15px;">
+<span class="kw">type</span> <span class="type">RespuestaAPI</span> =
+  | { <span class="prop">status</span>: <span class="str">"loading"</span> }
+  | { <span class="prop">status</span>: <span class="str">"success"</span>; <span class="prop">data</span>: <span class="type">string</span>[] }
+  | { <span class="prop">status</span>: <span class="str">"error"</span>; <span class="prop">mensaje</span>: <span class="type">string</span> };
+
+<span class="kw">function</span> <span class="fn">renderUI</span>(res: <span class="type">RespuestaAPI</span>) {
+  <span class="kw">if</span> (res.<span class="prop">status</span> === <span class="str">"success"</span>) {
+    console.<span class="fn">log</span>(res.<span class="prop">data</span>.<span class="prop">length</span>);
+  }
+}
+          </div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>CONTROL DE FLUJO SEGURO EN APPS</span>
+        <span class="slide-num">SLIDE 07 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 08: QUIZ 1
+         ====================================================================== -->
+    <section class="slide" data-slide="8">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-yellow">RETRIEVAL PRACTICE</span>
+          <span>QUIZ RÁPIDO 1</span>
+        </div>
+        <div>EVALUACIÓN EN VIVO</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-lg">¿QUÉ TIPO INFIERE TYPESCRIPT AQUÍ?</h2>
+      </div>
+
+      <div class="card card-cream" style="padding: 14px 20px; margin-bottom: 16px;">
+        <div class="code-box" style="font-size: 20px;">
+<span class="kw">let</span> puntaje = <span class="num">100</span>;
+puntaje = <span class="str">"Cien"</span>; <span class="cm">// ¿Qué ocurre en esta línea?</span>
+        </div>
+      </div>
+
+      <div class="quiz-container">
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="checkQuiz(this, false, 'q1', 'Incorrecto. TypeScript infiere que puntaje es number por su valor inicial.')">
+            <span>A</span> Se convierte a string sin ningún problema en runtime.
+          </button>
+          <button class="quiz-btn" onclick="checkQuiz(this, true, 'q1', '¡Correcto! Por inferencia de tipos, puntaje es number; asignar string genera error de compilación.')">
+            <span>B</span> Error de compilación: Type string no es asignable a number.
+          </button>
+          <button class="quiz-btn" onclick="checkQuiz(this, false, 'q1', 'Incorrecto. let permite reasignar valores pero NO cambiar su tipo estático.')">
+            <span>C</span> Se crea una variable dinámica any que acepta cualquier tipo.
+          </button>
+          <button class="quiz-btn" onclick="checkQuiz(this, false, 'q1', 'Incorrecto. Solo const impide la reasignación, pero aquí el problema es el tipo.')">
+            <span>D</span> Error porque puntaje debió ser declarada con const obligatoriamente.
+          </button>
+        </div>
+
+        <div id="feedback-q1" class="quiz-feedback card-yellow"></div>
+      </div>
+
+      <div class="bottombar">
+        <span>KNOWLEDGE CHECK 1</span>
+        <span class="slide-num">SLIDE 08 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 09: DESGLOSE RETO 01
+         ====================================================================== -->
+    <section class="slide" data-slide="9">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-green">TALLER PRÁCTICO</span>
+          <span>RETO 01</span>
+        </div>
+        <div>src/01_tipos_primitivos.ts</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">RETO 01: TIPOS PRIMITIVOS & PROMEDIOS</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 16px;">
+          <b>Misión:</b> Corrige el sistema antiguo de notas declarando tipos estrictos y resumiendo tus datos.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card-yellow">
+          <h3 class="font-display" style="font-size: 22px; margin-bottom: 10px;">📋 CÓDIGO EN src/01_tipos_primitivos.ts:</h3>
+          <ul style="font-size: 18px; line-height: 1.5; margin-left: 20px;">
+            <li>Tipar variables personales: <code>nombreEstudiante</code>, <code>edadEstudiante</code>, <code>promedioObjetivo</code>, <code>estaMatriculado</code>.</li>
+            <li>Implementar <code>obtenerResumenPersonal()</code> con Template Strings (<code>${...}</code>).</li>
+            <li>Implementar <code>calcularPromedio(notas: readonly number[])</code>.</li>
+            <li>Implementar <code>formatearFichaEstudiante(...)</code> en mayúsculas.</li>
+          </ul>
+        </div>
+
+        <div class="card card-cream">
+          <div class="code-header">
+            <span class="tag-ts">💻 SALIDA ESPERADA (pnpm run start:01)</span>
+          </div>
+          <div class="code-box" style="font-size: 14px; line-height: 1.35;">
+┌────────────────────────────────────────────────────────┐
+│ 👤 RESUMEN DEL ESTUDIANTE EN CONSOLA                   │
+│ 👤 Estudiante: Mateo Vintimilla | 🎂 Edad: 17 años ... │
+└────────────────────────────────────────────────────────┘
+
+🔍 Verificando Paso 1: Tipos de Variables y Resumen...
+  ✅ [PASÓ]: nombreEstudiante es un string válido
+  ✅ [PASÓ]: edadEstudiante es un number positivo
+  ✅ [PASÓ]: obtenerResumenPersonal() implementada
+
+🔍 Verificando Paso 2: calcularPromedio()...
+  ✅ [PASÓ]: calcularPromedio([]) === 0
+  ✅ [PASÓ]: calcularPromedio([10, 8, 9]) === 9
+
+🔍 Verificando Paso 3: formatearFichaEstudiante()...
+  ✅ [PASÓ]: Ficha generada correctamente
+🎉 ¡FELICITACIONES! Has completado el Reto 01.
+          </div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>DESCRIPCIÓN DEL RETO 01</span>
+        <span class="slide-num">SLIDE 09 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 10: DESGLOSE RETO 02
+         ====================================================================== -->
+    <section class="slide" data-slide="10">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-pink">TALLER PRÁCTICO</span>
+          <span>RETO 02</span>
+        </div>
+        <div>src/02_puente_java_interfaces.ts</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">RETO 02: INTERFACES & PUENTE JAVA</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 16px;">
+          <b>Misión:</b> Reemplaza la clase pesada <code>UsuarioJava.java</code> por interfaces limpias en TypeScript.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card-pink">
+          <h3 class="font-display" style="font-size: 22px; margin-bottom: 10px;">📋 CÓDIGO EN src/02_puente_java_interfaces.ts:</h3>
+          <ul style="font-size: 18px; line-height: 1.5; margin-left: 20px;">
+            <li>Definir <code>interface PerfilUsuario</code> con <code>readonly id</code>, <code>telefono?</code> y <code>rol</code> tipo union.</li>
+            <li>Implementar <code>formatearPerfilUsuario(usuario)</code>.</li>
+            <li>Definir <code>interface ProductoItem</code> con <code>descuentoPorcentaje?</code>.</li>
+            <li>Implementar <code>calcularPrecioFinal(producto)</code> con 2 decimales.</li>
+          </ul>
+        </div>
+
+        <div class="card card-cream">
+          <div class="code-header">
+            <span class="tag-ts">💻 SALIDA ESPERADA (pnpm run start:02)</span>
+          </div>
+          <div class="code-box" style="font-size: 14px; line-height: 1.35;">
+┌────────────────────────────────────────────────────────┐
+│ 📱 PERFIL DE USUARIO FORMATEADO EN CONSOLA             │
+│ [PERFIL] UETS-2026-001 (ESTUDIANTE): Carlos Andrade... │
+└────────────────────────────────────────────────────────┘
+
+🔍 Verificando Paso 1: Interface PerfilUsuario...
+  ✅ [PASÓ]: usuarioEjemplo tiene un id tipo string válido
+  ✅ [PASÓ]: usuarioEjemplo tiene nombreCompleto
+  ✅ [PASÓ]: formatearPerfilUsuario() implementada
+
+🔍 Verificando Paso 2: calcularPrecioFinal()...
+  ✅ [PASÓ]: Producto con 25% descuento calcula $15.00
+  ✅ [PASÓ]: Producto sin descuento mantiene $8.50
+  ✅ [PASÓ]: Producto NO disponible retorna $0.00
+🎉 ¡FELICITACIONES! Has completado el Reto 02.
+          </div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>DESCRIPCIÓN DEL RETO 02</span>
+        <span class="slide-num">SLIDE 10 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 11: DESGLOSE RETO 03
+         ====================================================================== -->
+    <section class="slide" data-slide="11">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-orange">TALLER PRÁCTICO</span>
+          <span>RETO 03</span>
+        </div>
+        <div>src/03_unions_narrowing.ts</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">RETO 03: ESTADOS MÓVILES & UNIONES</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 16px;">
+          <b>Misión:</b> Evitar que la app móvil se cierre al perder internet usando Discriminated Unions.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card-orange">
+          <h3 class="font-display" style="font-size: 22px; margin-bottom: 10px;">📋 CÓDIGO EN src/03_unions_narrowing.ts:</h3>
+          <ul style="font-size: 18px; line-height: 1.5; margin-left: 20px;">
+            <li>Implementar <code>formatearIdentificador(id: string | number)</code> usando <code>typeof id === "string"</code>.</li>
+            <li>Implementar <code>renderizarEstadoUI(estado)</code> usando <code>switch(estado.status)</code> para manejar <code>LOADING</code>, <code>SUCCESS</code> y <code>ERROR</code>.</li>
+          </ul>
+        </div>
+
+        <div class="card card-cream">
+          <div class="code-header">
+            <span class="tag-ts">💻 SALIDA ESPERADA (pnpm run start:03)</span>
+          </div>
+          <div class="code-box" style="font-size: 14px; line-height: 1.35;">
+🔍 Verificando Paso 1: formatearIdentificador()...
+  ✅ [PASÓ]: String formateado a mayúsculas correctamente
+  ✅ [PASÓ]: Number formateado a 6 dígitos con padStart
+
+🔍 Verificando Paso 2: renderizarEstadoUI()...
+  ✅ [PASÓ]: Estado LOADING renderizado correctamente
+  ✅ [PASÓ]: Estado SUCCESS renderizado correctamente
+  ✅ [PASÓ]: Estado ERROR renderizado correctamente
+
+-----------------------------------------------------------------
+🎉 ¡FELICITACIONES! Has completado el Reto 03 con 100% de éxito.
+👉 Avanza al Reto 04 ejecutando: pnpm run start:04
+          </div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>DESCRIPCIÓN DEL RETO 03</span>
+        <span class="slide-num">SLIDE 11 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 12: DESGLOSE RETO 04
+         ====================================================================== -->
+    <section class="slide" data-slide="12">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-green">DESAFÍO INTEGRADOR</span>
+          <span>RETO 04</span>
+        </div>
+        <div>src/04_desafio_integrador.ts</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">RETO 04: CARRITO DEL BAR SALESIANO</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 16px;">
+          <b>Misión:</b> Construir el motor financiero de la app de la cafetería escolar UETS.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card-green">
+          <h3 class="font-display" style="font-size: 22px; margin-bottom: 10px;">📋 CÓDIGO EN src/04_desafio_integrador.ts:</h3>
+          <ul style="font-size: 18px; line-height: 1.5; margin-left: 20px;">
+            <li>Implementar <code>calcularTotalesPedido(pedido)</code> calculando:
+              <ul style="margin-left: 20px; margin-top: 4px;">
+                <li>Subtotal bruto acumulado.</li>
+                <li>Descuento estudiantil (10% si subtotal >= $10.00).</li>
+                <li>IVA (15% sobre base imponible neta).</li>
+                <li>Total final a pagar.</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card card-cream">
+          <div class="code-header">
+            <span class="tag-ts">💻 SALIDA ESPERADA (pnpm run start:04)</span>
+          </div>
+          <div class="code-box" style="font-size: 13px; line-height: 1.25;">
+  ✅ [PASÓ]: Subtotal calculado: $5.00
+  ✅ [PASÓ]: Sin descuento para compras menores a $10.00
+  ✅ [PASÓ]: IVA 15% de $5.00 es $0.75
+  ✅ [PASÓ]: Total a pagar: $5.75
+  ✅ [PASÓ]: Subtotal calculado: $10.50
+  ✅ [PASÓ]: Descuento 10% aplicado (>= $10) ($1.05)
+  ✅ [PASÓ]: Total final con IVA 15%: $10.87
+╔══════════════════════════════════════════════════════════════╗
+║           📱 BAR SALESIANO UETS - RECIBO DIGITAL             ║
+╠══════════════════════════════════════════════════════════════╣
+║ 💳 TOTAL A PAGAR:       $                              10.87 ║
+╚══════════════════════════════════════════════════════════════╝
+🎉 ¡FELICITACIONES! Has completado el Reto 04.
+          </div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>DESCRIPCIÓN DEL RETO 04</span>
+        <span class="slide-num">SLIDE 12 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 13: GIT PARA PRINCIPIANTES - FORK & CLONACIÓN
+         ====================================================================== -->
+    <section class="slide" data-slide="13">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-blue">GUÍA PASO A PASO</span>
+          <span>GIT PARA PRINCIPIANTES</span>
+        </div>
+        <div>¿CÓMO INICIAR TU TALLER?</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">TU FLUJO DE TRABAJO: FORK & RAMAS</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 20px;">
+          Crea tu propia copia en GitHub (Fork), clónala en tu máquina y trabaja en tu rama.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card card-yellow">
+          <div style="display: flex; align-items: center; margin-bottom: 12px;">
+            <div class="step-circle">1</div>
+            <h3 class="font-display" style="font-size: 20px;">HACER FORK</h3>
+          </div>
+          <p style="font-size: 16px; margin-bottom: 8px;">En el repo UETS, haz clic en 🍴 <b>"Fork"</b> (arriba derecha) para tener tu copia en tu cuenta.</p>
+          <div class="code-box" style="font-size: 13px;">
+github.com/UETS.../02-typescript
+➔ Clic en botón "Fork"
+          </div>
+        </div>
+
+        <div class="card card-pink">
+          <div style="display: flex; align-items: center; margin-bottom: 12px;">
+            <div class="step-circle">2</div>
+            <h3 class="font-display" style="font-size: 20px;">CLONAR TU FORK</h3>
+          </div>
+          <p style="font-size: 16px; margin-bottom: 8px;">Clona <b>tu</b> repositorio personal y entra a la carpeta:</p>
+          <div class="code-box" style="font-size: 13px;">
+git clone https://github.com/TU-USUARIO/02-typescript.git
+cd 02-typescript
+pnpm install
+          </div>
+        </div>
+
+        <div class="card card-green">
+          <div style="display: flex; align-items: center; margin-bottom: 12px;">
+            <div class="step-circle">3</div>
+            <h3 class="font-display" style="font-size: 20px;">CREAR TU RAMA</h3>
+          </div>
+          <p style="font-size: 16px; margin-bottom: 8px;">Crea tu rama de trabajo con tu nombre y apellido:</p>
+          <div class="code-box" style="font-size: 13px;">
+git checkout -b entrega/mateo-vintimilla
+          </div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>CONTROL DE VERSIONES BÁSICO (PASO 1 A 3)</span>
+        <span class="slide-num">SLIDE 13 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 14: CÓMO ABRIR EL PULL REQUEST
+         ====================================================================== -->
+    <section class="slide" data-slide="14">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-blue">ENTREGA OFICIAL</span>
+          <span>PULL REQUEST (PR)</span>
+        </div>
+        <div>¿CÓMO ENTREGAR TU TAREA?</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">GUARDAR, SUBIR Y ABRIR TU PULL REQUEST</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 20px;">
+          Envía tu solución al repositorio central de la UETS para que el Autograding Bot te califique.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card-cream">
+          <h3 class="font-display" style="font-size: 22px; margin-bottom: 10px;">💻 EN TU TERMINAL (VS CODE):</h3>
+          <div class="code-box" style="font-size: 14px; line-height: 1.4; margin-bottom: 12px;">
+<span class="cm"># 1. Guardar tus cambios con commit semántico:</span>
+git add .
+git commit -m "feat(reto-01): resolver tipos y promedios"
+
+<span class="cm"># 2. Subir tu rama a tu fork en GitHub:</span>
+git push origin entrega/mateo-vintimilla
+          </div>
+          <p style="font-size: 16px; color: var(--ink-2);">
+            👉 Haz un commit por cada reto completado para ganar los <b>+0.50 pts</b> de Commits Semánticos.
+          </p>
+        </div>
+
+        <div class="card card-green">
+          <h3 class="font-display" style="font-size: 22px; margin-bottom: 10px;">🌐 EN GITHUB WEB:</h3>
+          <ol style="font-size: 16px; line-height: 1.5; margin-left: 20px;">
+            <li>Entra a tu fork en GitHub y haz clic en <b>"Contribute" ➔ "Open pull request"</b>.</li>
+            <li>Título del PR: <code>Entrega Semana 2 - Tu Nombre y Apellido</code>.</li>
+            <li>En la descripción que aparece, llena tus datos y pega el <b>enlace a tu video Screencast de 3 min</b>.</li>
+            <li>Haz clic en <b>"Create pull request"</b>.</li>
+            <li>¡Listo! El <b>Bot de la UETS</b> revisará tu código en 60 segundos.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>ENTREGA Y EVALUACIÓN AUTOMÁTICA</span>
+        <span class="slide-num">SLIDE 14 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 15: CONVENTIONAL COMMITS
+         ====================================================================== -->
+    <section class="slide" data-slide="15">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-orange">BUENAS PRÁCTICAS</span>
+          <span>CONVENTIONAL COMMITS</span>
+        </div>
+        <div>ESTÁNDAR PROFESIONAL DE LA INDUSTRIA</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">CÓMO ESCRIBIR BUENOS COMMITS</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 20px;">
+          En la industria del software no se aceptan commits como <i>"cambios"</i> o <i>"subiendo"</i>. Usamos el estándar <b>Conventional Commits</b>.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card-green">
+          <div style="font-size: 22px; font-weight: 700; color: var(--green-dark); margin-bottom: 12px;">✅ COMMITS CORRECTOS (+0.50 pts)</div>
+          <ul style="font-size: 18px; line-height: 1.6; margin-left: 20px; font-family: 'JetBrains Mono', monospace;">
+            <li><b>feat(reto-01):</b> tipar variables y calcular promedio</li>
+            <li><b>feat(reto-02):</b> definir interface de usuario</li>
+            <li><b>feat(reto-03):</b> implementar union types</li>
+            <li><b>feat(reto-04):</b> calcular descuento del bar</li>
+            <li><b>docs:</b> agregar enlace de video en readme</li>
+          </ul>
+        </div>
+
+        <div class="card card-pink">
+          <div style="font-size: 22px; font-weight: 700; color: #991b1b; margin-bottom: 12px;">❌ COMMITS PROHIBIDOS (0 pts)</div>
+          <ul style="font-size: 18px; line-height: 1.6; margin-left: 20px; font-family: 'JetBrains Mono', monospace;">
+            <li>"subiendo tarea"</li>
+            <li>"commit 1"</li>
+            <li>"cambios finales"</li>
+            <li>"listo profesor"</li>
+            <li>"asd" o "."</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>ESTÁNDARES DE CALIDAD PROFESIONAL</span>
+        <span class="slide-num">SLIDE 15 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 16: SCREENCAST DEMOSTRATIVO (BLOQUE B)
+         ====================================================================== -->
+    <section class="slide" data-slide="16">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-pink">BLOQUE B (50%)</span>
+          <span>DEFENSA TÉCNICA SCREENCAST</span>
+        </div>
+        <div>VIDEO DEMOSTRATIVO DE 3 MINUTOS</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">EL VIDEO SCREENCAST (5.0 PUNTOS)</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 20px;">
+          No basta con que el código funcione: debes saber explicarlo con fluidez técnica.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card-yellow">
+          <h3 class="font-display" style="font-size: 24px; margin-bottom: 12px;">🎥 ESTRUCTURA DEL VIDEO (3 MIN MAX):</h3>
+          <ol style="font-size: 19px; line-height: 1.6; margin-left: 24px;">
+            <li><b>Minuto 0:00 - 0:30:</b> Preséntate en cámara (rostro visible) indicando tu nombre y paralelo.</li>
+            <li><b>Minuto 0:30 - 1:30:</b> Abre VS Code y explica cómo definiste una <code>interface</code> y por qué usaste <code>readonly</code> o <code>?</code>.</li>
+            <li><b>Minuto 1:30 - 2:30:</b> Abre la terminal y ejecuta <code>pnpm run test:all</code> mostrando que todos los tests pasaron.</li>
+            <li><b>Minuto 2:30 - 3:00:</b> Explica una diferencia clave entre Java y TypeScript.</li>
+          </ol>
+        </div>
+
+        <div class="card card-cream">
+          <h3 class="font-display" style="font-size: 24px; margin-bottom: 12px;">🛠️ HERRAMIENTAS RECOMENDADAS:</h3>
+          <ul style="font-size: 19px; line-height: 1.6; margin-left: 24px;">
+            <li><b>Loom (Recomendado):</b> Graba tu pantalla y cámara con 1 clic y te da el enlace público al instante.</li>
+            <li><b>Clipchamp / OBS Studio:</b> Graba el video y súbelo a YouTube como "No Listado" o a Google Drive público.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>DEFENSA ORAL EN VIDEO</span>
+        <span class="slide-num">SLIDE 16 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 17: RÚBRICA DUAL MIT CONSOLIDADA
+         ====================================================================== -->
+    <section class="slide" data-slide="17">
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="pill pill-green">RÚBRICA INSTITUCIONAL</span>
+          <span>EVALUACIÓN DUAL MIT</span>
+        </div>
+        <div>CALIFICACIÓN TOTAL: 10 PUNTOS</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="font-display title-xl">DESGLOSE DE CALIFICACIÓN (10.0 PTS)</h2>
+        <p style="font-size: 24px; color: var(--ink-2); margin-bottom: 20px;">
+          Ponderación dual: 50% Trabajo en GitHub / 50% Sustentación en Video Screencast.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card-green">
+          <div class="mono" style="font-size: 22px; font-weight: 700; color: var(--green-dark);">BLOQUE A (50% · 5.0 PTS)</div>
+          <h3 class="font-display" style="font-size: 32px; margin: 10px 0;">CÓDIGO EN GITHUB</h3>
+          <ul style="font-size: 19px; line-height: 1.5; margin-left: 20px;">
+            <li><b>4.0 pts:</b> Los 4 retos completados y pasando tests (1.0 pt cada uno).</li>
+            <li><b>0.5 pts:</b> Verificación <code>pnpm run check</code> con 0 errores de tipos.</li>
+            <li><b>0.5 pts:</b> Commits convencionales y Pull Request ordenado.</li>
+          </ul>
+        </div>
+
+        <div class="card card-yellow">
+          <div class="mono" style="font-size: 22px; font-weight: 700; color: var(--orange);">BLOQUE B (50% · 5.0 PTS)</div>
+          <h3 class="font-display" style="font-size: 32px; margin: 10px 0;">VIDEO SCREENCAST (3 MIN)</h3>
+          <ul style="font-size: 19px; line-height: 1.5; margin-left: 20px;">
+            <li><b>2.5 pts:</b> Justificación técnica del puente Java vs TypeScript.</li>
+            <li><b>1.5 pts:</b> Demostración en vivo en terminal con tsx.</li>
+            <li><b>1.0 pt:</b> Calidad de audio/video y enlace en la descripción del PR.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <span>RÚBRICA DE EVALUACIÓN OFICIAL</span>
+        <span class="slide-num">SLIDE 17 / 18</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SLIDE 18: CIERRE Y ACCIÓN
+         ====================================================================== -->
+    <section class="slide" data-slide="18" style="background-color: var(--green); color: #ffffff;">
+      <div class="topbar" style="color: #ffffff;">
+        <div class="topbar-left">
+          <span class="pill" style="background: var(--yellow); color: var(--ink);">¡A CODIFICAR!</span>
+          <span>PROGRAMACIÓN MÓVIL</span>
+        </div>
+        <div>UETS 2026–2027</div>
+      </div>
+
+      <div style="margin-top: 40px;">
+        <div class="pill" style="background: #ffffff; color: var(--ink); display: inline-block; margin-bottom: 16px;">
+          ACTIVIDAD PRÁCTICA 2
+        </div>
+        <h1 class="font-display" style="font-size: 84px; line-height: 0.95; margin-bottom: 20px; color: #ffffff; text-shadow: 4px 4px 0 var(--ink);">
+          DOMINA TYPESCRIPT.<br>CREA TU PULL REQUEST.
+        </h1>
+        <p style="font-size: 26px; line-height: 1.4; max-width: 1300px; color: #e6f9ed;">
+          Clona el repositorio, crea tu rama <code>entrega/tu-nombre</code>, supera los 4 retos y recibe la retroalimentación instantánea del Bot.
+        </p>
+      </div>
+
+      <div class="card" style="background: #ffffff; color: var(--ink); padding: 20px 28px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+        <div>
+          <div class="mono" style="font-size: 16px; font-weight: 700; color: var(--green);">COMANDOS DE INICIO RÁPIDO:</div>
+          <div class="mono" style="font-size: 20px; font-weight: 700; margin-top: 4px;">
+            git clone https://github.com/UETS-Programacion-Movil/02-typescript.git
+          </div>
+        </div>
+        <div class="pill pill-orange" style="font-size: 18px; padding: 10px 18px;">
+          pnpm install && pnpm run start:01
+        </div>
+      </div>
+
+      <div class="bottombar" style="color: #ffffff; border-top-color: rgba(255,255,255,0.3);">
+        <span>UNIDAD EDUCATIVA TÉCNICO SALESIANO · PROF. MILTON VELÁSQUEZ</span>
+        <span class="slide-num">SLIDE 18 / 18</span>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    /* ==========================================================================
+       STAGE SCALING & PRESENTATION CONTROLLER
+       ========================================================================== */
+    const stage = document.getElementById('stage-container');
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progress-bar');
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    // Actualizar los números de slide dinámicamente
+    document.querySelectorAll('.slide-num').forEach((el, idx) => {
+      const num = (idx + 1).toString().padStart(2, '0');
+      const total = totalSlides.toString().padStart(2, '0');
+      el.textContent = `SLIDE ${num} / ${total}`;
+    });
+
+    // Fixed 1920x1080 Aspect-Ratio Fit
+    function resizeStage() {
+      const targetW = 1920;
+      const targetH = 1080;
+      const windowW = window.innerWidth;
+      const windowH = window.innerHeight;
+
+      const scale = Math.min(windowW / targetW, windowH / targetH);
+      stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+
+    window.addEventListener('resize', resizeStage);
+    window.addEventListener('load', resizeStage);
+    resizeStage();
+
+    // Slide Navigation
+    function showSlide(index) {
+      if (index < 0) index = 0;
+      if (index >= totalSlides) index = totalSlides - 1;
+
+      slides.forEach((s, idx) => {
+        if (idx === index) {
+          s.classList.add('active');
+        } else {
+          s.classList.remove('active');
+        }
+      });
+
+      currentSlide = index;
+      const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
+      progressBar.style.width = progressPercent + '%';
+    }
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      } else if (e.key === 'Home') {
+        showSlide(0);
+      } else if (e.key === 'End') {
+        showSlide(totalSlides - 1);
+      }
+    });
+
+    // Quiz Check Interactive Helper (teach skill standard)
+    function checkQuiz(btn, isCorrect, quizId, explanation) {
+      const parent = btn.closest('.quiz-container');
+      const buttons = parent.querySelectorAll('.quiz-btn');
+      const feedback = document.getElementById('feedback-' + quizId);
+
+      buttons.forEach(b => {
+        b.classList.remove('correct', 'incorrect');
+      });
+
+      if (isCorrect) {
+        btn.classList.add('correct');
+        feedback.style.display = 'block';
+        feedback.style.background = '#d4f0df';
+        feedback.style.borderColor = '#136636';
+        feedback.innerHTML = '<b>✅ ¡EXCELENTE!</b> ' + explanation;
+      } else {
+        btn.classList.add('incorrect');
+        feedback.style.display = 'block';
+        feedback.style.background = '#fde8df';
+        feedback.style.borderColor = '#E85A1F';
+        feedback.innerHTML = '<b>❌ INTÉNTALO DE NUEVO:</b> ' + explanation;
+      }
+    }
+  </script>
+</body>
+</html>
