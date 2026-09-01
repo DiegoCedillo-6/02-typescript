@@ -1,4 +1,9 @@
 node_modules/
 dist/
-*.log
 .DS_Store
+Thumbs.db
+*.log
+*.metadata.json
+.eval_sandbox/
+.vscode/
+.idea/

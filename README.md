@@ -9,16 +9,18 @@
 
 ---
 
-## 🌟 Diapositivas Interactivas en Vivo
+## 🌟 Diapositivas Interactivas en Vivo (Cloudflare Workers)
 
-Puedes acceder a la presentación interactiva proyectable (desarrollada con estética Neo-Brutalista *Creative Mode* y sin dependencias) directamente desde tu navegador:
+Puedes acceder a la presentación interactiva proyectable (desarrollada con estética Neo-Brutalista y Lucide Icons) directamente desde la nube:
 
-👉 **[Ver Presentación Web 16:9 en Vivo](https://uets-programacion-movil.github.io/02-typescript/)** *(o abre `index.html` localmente)*.
+👉 **[Abrir Diapositivas en el Portal Oficial (Cloudflare Workers)](https://uets-pm-portal.vgmiltonisaac.workers.dev/02-typescript/)**
+
+👉 **[Ver Portal Principal de la Materia](https://uets-pm-portal.vgmiltonisaac.workers.dev/)**
 
 - ⌨ **Navegación:** Teclas `[←]` `[→]` o `[Espacio]`.
 - 📺 **Pantalla Completa:** Presiona `[F]`.
 - 🧠 **Quizzes Interactivos:** Evaluaciones formativas en vivo con retroalimentación instantánea.
-- 📖 **Explicación de Retos & Git:** Diapositivas 9 a 16 con el tutorial paso a paso.
+- 💡 **Auto-Sync Test Runner:** Al ejecutar `pnpm test`, tus pruebas se sincronizan automáticamente con `main`.
 
 ---
 
