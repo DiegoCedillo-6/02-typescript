@@ -43,7 +43,6 @@ export function calcularPromedio(notas: readonly number[]): number {
   }
     for (let i = 0; i < notas.length; i++) {
       const nota = notas[i]
-      
       if (nota != undefined){
         suma = suma + nota;
       }
