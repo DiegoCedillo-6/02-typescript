@@ -32,7 +32,7 @@ export const promedioObjetivo: number = 9.66;
 export let estaMatriculado: boolean = true;    
 
 export function obtenerResumenPersonal(): string {
-  let cadena:string = `👤 Estudiante: ${nombreEstudiante} | 🎂 Edad: ${edadEstudiante} años | 🎯 Meta: ${promedioObjetivo} PROMEDIO/10 | 📋 Estado: &{estaMatriculado} ;
+  let cadena:string = `👤 Estudiante: ${nombreEstudiante} | 🎂 Edad: ${edadEstudiante} años | 🎯 Meta: ${promedioObjetivo} PROMEDIO/10 | 📋 Estado: &{estaMatriculado} `;
   return "";
 }
 
@@ -43,12 +43,12 @@ export function calcularPromedio(notas: readonly number[]): number {
   }
     for (let i = 0; i < notas.length; i++) {
       const nota = notas[i]
-      let suma = suma + nota ;
+      
       if (nota != undefined){
         suma = suma + nota;
       }
     }
-    let promedio = number = Number((suma/notas.length).toFixed(2));
+    let promedio: number = Number((suma/notas.length).toFixed(2));
     return promedio;
   
 }
