@@ -20,42 +20,37 @@
 // ============================================================================
 // PASO 1: Tipado de Variables Personales e Impresión de Resumen
 // ============================================================================
-// TODO: Asigna valores válidos a las variables con sus tipos explícitos requeridos:
+//Asigna valores válidos a las variables con sus tipos explícitos requeridos:
 // - `nombreEstudiante` (string): Debe tener al menos 1 caracter.
 // - `edadEstudiante` (number): Debe ser un número mayor a 0.
 // - `promedioObjetivo` (number): Debe ser un número decimal (ej. 9.85).
 // - `estaMatriculado` (boolean): Debe ser true.
 
-export const nombreEstudiante: string = "";       // 👈 TODO: Escribe tu nombre aquí
-export const edadEstudiante: number = 0;          // 👈 TODO: Escribe tu edad aquí
-export const promedioObjetivo: number = 0;        // 👈 TODO: Escribe tu promedio objetivo
-export let estaMatriculado: boolean = false;    // 👈 TODO: Cambia a true
+export const nombreEstudiante: string = "Diego";     
+export const edadEstudiante: number = 17;          
+export const promedioObjetivo: number = 9.66;        
+export let estaMatriculado: boolean = true;    
 
-/**
- * TODO: Implementa la función `obtenerResumenPersonal` usando Template Strings (${...}).
- * Debe retornar una cadena con este formato exacto:
- * `👤 Estudiante: NOMBRE | 🎂 Edad: EDAD años | 🎯 Meta: PROMEDIO/10 | 📋 Estado: MATRICULADO` (o NO_MATRICULADO si es false)
- */
 export function obtenerResumenPersonal(): string {
-  // 👇 TODO: Escribe tu lógica aquí y reemplaza el return "":
+  let cadena:string = `👤 Estudiante: ${nombreEstudiante} | 🎂 Edad: ${edadEstudiante} años | 🎯 Meta: ${promedioObjetivo} PROMEDIO/10 | 📋 Estado: MATRICULADO` ;
   return "";
 }
 
-// ============================================================================
-// PASO 2: Función para Calcular el Promedio
-// ============================================================================
-/**
- * TODO: Implementa la función `calcularPromedio`.
- * Debe:
- * 1. Recibir `notas`: un arreglo inmutable de números (`readonly number[]`).
- * 2. Si el arreglo está vacío, retornar `0`.
- * 3. Sumar todas las notas y dividir para la cantidad de elementos (`notas.length`).
- * 4. Retornar el resultado como número redondeado a 2 decimales.
- *    (Pista: usa Number((suma / notas.length).toFixed(2)))
- */
 export function calcularPromedio(notas: readonly number[]): number {
-  // 👇 TODO: Escribe tu lógica aquí y reemplaza el return 0:
-  return 0;
+ let suma = 0;
+  if(notas.length == 0){
+    return 0;
+  }
+    for (let i = 0; i < notas.length; i++) {
+      const nota = notas[i]
+      let suma = suma + nota ;
+      if (nota != undefined){
+        suma = suma + nota;
+      }
+    }
+    let promedio = number = Number((suma/notas.length).toFixed(2));
+    return promedio;
+  
 }
 
 // ============================================================================
