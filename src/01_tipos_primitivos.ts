@@ -53,26 +53,12 @@ export function calcularPromedio(notas: readonly number[]): number {
   
 }
 
-// ============================================================================
-// PASO 3: Formateador de Ficha Técnica
-// ============================================================================
-/**
- * TODO: Implementa la función `formatearFichaEstudiante`.
- * Parámetros requeridos:
- *  - nombre (string)
- *  - edad (number)
- *  - paralelo ("E1" | "E2") -> Literal Type
- *  - activo (boolean)
- * 
- * Formato de salida requerido:
- *  `[FICHA UETS] NOMBRE_EN_MAYUSCULAS (XX años) - Paralelo: E1 - Estado: MATRICULADO` (o RETIRADO si activo es false)
- */
 export function formatearFichaEstudiante(
   nombre: string,
   edad: number,
   paralelo: "E1" | "E2",
   activo: boolean
 ): string {
-  // 👇 TODO: Escribe tu lógica aquí y reemplaza el return "":
-  return "";
+ let formato: string = `[FICHA UETS] ${nombre.toUpperCase()} (${edad} años) - Paralelo: ${paralelo} - Estado: ${activo == true ? "MATRICULADO": "RETIRADO"}`;
+  return formato;
 }
