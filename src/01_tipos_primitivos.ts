@@ -33,7 +33,7 @@ export let estaMatriculado: boolean = true;
 
 export function obtenerResumenPersonal(): string {
   let cadena:string = `👤 Estudiante: ${nombreEstudiante} | 🎂 Edad: ${edadEstudiante} años | 🎯 Meta: ${promedioObjetivo} PROMEDIO/10 | 📋 Estado: &{estaMatriculado} `;
-  return "";
+  return cadena;
 }
 
 export function calcularPromedio(notas: readonly number[]): number {
