@@ -12,7 +12,7 @@
  * tus datos e implementar el cálculo de promedios con tipado estricto.
  * 
  * 🛠️ INSTRUCCIONES:
- * 1. Lee atentamente cada bloque marcado con `// TODO:`.
+ * 1. Lee atentamente cada bloque marcado con ``.
  * 2. Escribe o completa el código TypeScript según las especificaciones.
  * 3. Ejecuta en tu terminal: `pnpm run start:01` para verificar los tests.
  */
@@ -32,7 +32,7 @@ export const promedioObjetivo: number = 9.66;
 export let estaMatriculado: boolean = true;    
 
 export function obtenerResumenPersonal(): string {
-  let cadena:string = `👤 Estudiante: ${nombreEstudiante} | 🎂 Edad: ${edadEstudiante} años | 🎯 Meta: ${promedioObjetivo} PROMEDIO/10 | 📋 Estado: MATRICULADO` ;
+  let cadena:string = `👤 Estudiante: ${nombreEstudiante} | 🎂 Edad: ${edadEstudiante} años | 🎯 Meta: ${promedioObjetivo} PROMEDIO/10 | 📋 Estado: &{estaMatriculado} ;
   return "";
 }
 
