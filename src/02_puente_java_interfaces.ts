@@ -53,11 +53,11 @@ export interface PerfilUsuario {
   rol: "ADMIN" | "DOCENTE" | "ESTUDIANTE";
 }
 
-// TODO: Completa la variable constante `usuarioEjemplo` asignando valores válidos:
+
 export const usuarioEjemplo: PerfilUsuario = {
   id: "UETS-2026-001",
-  nombreCompleto: "Diego Sebastián Cedillo Guaicha",                                // 👈 TODO: Llena tu nombre completo
-  correo: "estudiante@est.salesianos.edu.ec",        // 👈 TODO: Tu correo institucional
+  nombreCompleto: "Diego Sebastián Cedillo Guaicha",                             
+  correo: "diego.cedillog.est@uets.edu.ec",        
   rol: "ESTUDIANTE"
 };
 
