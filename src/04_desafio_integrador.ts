@@ -20,6 +20,7 @@
 // ============================================================================
 // 1. Modelos e Interfaces de la App Móvil
 // ============================================================================
+declare const console: any;
 export type MetodoPago = "EFECTIVO" | "TRANSFERENCIA" | "TARJETA_DIGITAL";
 export type EstadoPedido = "PENDIENTE" | "PAGADO" | "EN_CAMINO" | "ENTREGADO";
 
