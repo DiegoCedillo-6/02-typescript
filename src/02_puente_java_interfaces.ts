@@ -41,7 +41,7 @@ export const usuarioEjemplo: PerfilUsuario = {
 
 
 export function formatearPerfilUsuario(usuario: PerfilUsuario): string {
-  let forma = String=`[PERFIL] ${usuario.id} (${usuario.rol}): ${usuario.nombreCompleto} - ${usuario.correo}`;
+  let forma : string =`[PERFIL] ${usuario.id} (${usuario.rol}): ${usuario.nombreCompleto} - ${usuario.correo}`;
   return forma;
 }
 
