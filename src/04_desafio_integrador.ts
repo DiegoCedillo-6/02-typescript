@@ -58,17 +58,7 @@ export interface ResumenFinanciero {
 // ============================================================================
 // 2. Función de Lógica Financiera
 // ============================================================================
-/**
- * TODO: Implementa `calcularTotalesPedido`.
- * Reglas de Negocio:
- * 1. `subtotal`: Sumar (precioUnitario * cantidad) de cada elemento en `pedido.detalles`.
- * 2. `descuentoEstudiantil`: Si `subtotal >= 10.00`, calcular el 10% (subtotal * 0.10). Si es menor, 0.
- * 3. `baseImponible`: subtotal - descuentoEstudiantil.
- * 4. `iva15`: baseImponible * 0.15.
- * 5. `totalPagar`: baseImponible + iva15.
- * 
- * Todos los valores numéricos deben retornar redondeados a 2 decimales: Number(val.toFixed(2)).
- */
+
 export function calcularTotalesPedido(pedido: PedidoMovil): ResumenFinanciero {
   const subtotal = pedido.detalles.reduce((total, detalle) => total + detalle.producto.precioUnitario * detalle.cantidad, 0);
   const descuentoEstudiantil = subtotal >= 10 ? subtotal *0.1 : 0 ;
