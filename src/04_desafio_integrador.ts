@@ -70,12 +70,16 @@ export interface ResumenFinanciero {
  * Todos los valores numéricos deben retornar redondeados a 2 decimales: Number(val.toFixed(2)).
  */
 export function calcularTotalesPedido(pedido: PedidoMovil): ResumenFinanciero {
-  // 👇 TODO: Escribe tu lógica de cálculo aquí y reemplaza el objeto por defecto:
+  const subtotal = pedido.detalles.reduce((total, detalle) => total + detalle.producto.precioUnitario * detalle.cantidad, 0);
+  const descuentoEstudiantil = subtotal >= 10 ? subtotal *0.1 : 0 ;
+  const neto = subtotal - descuentoEstudiantil;
+  const iva15 = neto * 0.15;
+  const totalPagar = neto + iva15;
   return {
-    subtotal: 0,
-    descuentoEstudiantil: 0,
-    iva15: 0,
-    totalPagar: 0
+    subtotal: Number(subtotal.toFixed(2)),
+    descuentoEstudiantil : Number(descuentoEstudiantil.toFixed(2)),
+    iva15: Number(iva15.toFixed(2)),
+    totalPagar: Number(totalPagar.toFixed(2))
   };
 }
 
@@ -85,19 +89,21 @@ export function calcularTotalesPedido(pedido: PedidoMovil): ResumenFinanciero {
 export function imprimirTicketDigital(pedido: PedidoMovil): void {
   const totales = calcularTotalesPedido(pedido);
 
+  const clienteTexto = `${pedido.cliente.nombre} (${pedido.cliente.cursoParalelo})`;
+
   console.log("╔══════════════════════════════════════════════════════════════╗");
   console.log("║           📱 BAR SALESIANO UETS - RECIBO DIGITAL             ║");
   console.log("╠══════════════════════════════════════════════════════════════╣");
-  console.log(`║ Orden #: ${pedido.numeroOrden.padEnd(52)}║`);
-  console.log(`║ Cliente: ${(pedido.cliente.nombre + " (" + pedido.cliente.cursoParalelo + ")").padEnd(52)}║`);
-  console.log(`║ Pago:    ${pedido.metodoPago.padEnd(52)}║`);
+  console.log(`║ Orden #: ${pedido.numeroOrden.substring(0, 50).padEnd(52)}║`);
+  console.log(`║ Cliente: ${clienteTexto.substring(0, 50).padEnd(52)}║`);
+  console.log(`║ Pago:    ${pedido.metodoPago.substring(0, 50).padEnd(52)}║`);
   console.log("╟──────────────────────────────────────────────────────────────╢");
   console.log("║ ITEMS DEL PEDIDO:                                            ║");
 
   pedido.detalles.forEach((item, idx) => {
     const totalItem = (item.producto.precioUnitario * item.cantidad).toFixed(2);
     const linea = `${idx + 1}. [${item.cantidad}x] ${item.producto.nombre} - $${totalItem}`;
-    console.log(`║ ${linea.padEnd(61)}║`);
+    console.log(`║ ${linea.substring(0, 59).padEnd(61)}║`);
   });
 
   console.log("╟──────────────────────────────────────────────────────────────╢");
